@@ -1,0 +1,29 @@
+{
+  "name": "web-synth",
+  "version": "0.0.1",
+  "description": "A simple synthesizer built with the web audio API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interlucid/web-synth.git"
+  },
+  "keywords": [
+    "web",
+    "audio",
+    "api",
+    "synth",
+    "interlucid"
+  ],
+  "author": "Brandon der Blätter",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/interlucid/web-synth/issues"
+  },
+  "homepage": "https://github.com/interlucid/web-synth#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
