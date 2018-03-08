@@ -40,4 +40,6 @@ app.delete('/api/patch/:id', (req, res) => {
     } else res.status(404).send(`Patch ${req.params.id} not found.`);
 });
 
-app.listen(3000, '0.0.0.0', () => console.log('Server listening on port 3000!'));
+const port = 3000;
+
+app.listen(port, () => console.log(`Server listening on port ${port}!`));
