@@ -4,12 +4,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Web Audio Synthesizer</title>
+    <style>
+        .white-key {
+            fill:#fff;
+            stroke-width:1px;
+            stroke:#000;
+        }
+        .black-key {
+            stroke-width:1px;
+            stroke:#000;
+        }
+    </style>
 </head>
-<body>
+<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()">
     <h1>Web Synth</h1>
+    <svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="0 0 500 500" stroke-linejoin="round">
+        <path class="white-key" onmousedown="playNote('c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('d')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('e')" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('f')" d="M375.5 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('g')" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('a')" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmousedown="playNote('b')" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="black-key" onmousedown="playNote('c#')" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmousedown="playNote('d#')" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmousedown="playNote('f#')" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmousedown="playNote('g#')" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmousedown="playNote('a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+    </svg>
     <script>
         const context = new AudioContext();
-        const oscillatorNode = context.createOscillator();
+        let oscillatorNode;
+        const noteFrequencies = {
+            'c': 261.63,
+            'c#': 277.18,
+            'd': 293.66,
+            'd#': 311.13,
+            'e': 329.63,
+            'f': 349.23,
+            'f#': 369.99,
+            'g': 392.00,
+            'g#': 415.30,
+            'a': 440.00,
+            'a#': 466.16,
+            'b': 493.88
+        }
+        const playNote = (note) => {
+            if(oscillatorNode) oscillatorNode.stop();
+            oscillatorNode = context.createOscillator();
+            oscillatorNode.connect(context.destination);
+            oscillatorNode.frequency.setValueAtTime(noteFrequencies[note], context.currentTime)
+            oscillatorNode.start();
+        }
+        const stopPlaying = () => {
+            oscillatorNode.stop();
+        }
     </script>
 </body>
 </html>
