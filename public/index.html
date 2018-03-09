@@ -33,8 +33,17 @@
         <path class="black-key" onmousedown="playNote('a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
     </svg>
     <script>
+        // Safari support
+        if(typeof AudioContext === 'undefined') {
+            var AudioContext = webkitAudioContext;
+        }
         const context = new AudioContext();
-        let oscillatorNode;
+        const oscillatorNode = context.createOscillator();
+        const gainNode = context.createGain();
+        oscillatorNode.connect(gainNode);
+        gainNode.connect(context.destination);
+        gainNode.gain.setValueAtTime(0, context.currentTime);
+        oscillatorNode.start();
         const noteFrequencies = {
             'c': 261.63,
             'c#': 277.18,
@@ -50,14 +59,11 @@
             'b': 493.88
         }
         const playNote = (note) => {
-            if(oscillatorNode) oscillatorNode.stop();
-            oscillatorNode = context.createOscillator();
-            oscillatorNode.connect(context.destination);
             oscillatorNode.frequency.setValueAtTime(noteFrequencies[note], context.currentTime)
-            oscillatorNode.start();
+            gainNode.gain.setValueAtTime(1, context.currentTime);
         }
         const stopPlaying = () => {
-            oscillatorNode.stop();
+            gainNode.gain.setValueAtTime(0, context.currentTime);
         }
     </script>
 </body>
