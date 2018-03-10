@@ -16,34 +16,45 @@
         }
     </style>
 </head>
-<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()">
+<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()" onkeydown="playNoteWithKeyboard(event)" onkeyup="stopPlaying()">
     <h1>Web Synth</h1>
+    <p>Click or type to play</p>
     <svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="0 0 500 500" stroke-linejoin="round">
-        <path class="white-key" onmousedown="playNote('c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('d')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('e')" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('f')" d="M375.5 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('g')" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('a')" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmousedown="playNote('b')" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="black-key" onmousedown="playNote('c#')" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmousedown="playNote('d#')" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmousedown="playNote('f#')" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmousedown="playNote('g#')" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmousedown="playNote('a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'c')" onmousedown="playNoteWithMouse(event, 'c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'd')" onmousedown="playNoteWithMouse(event, 'd')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'e')" onmousedown="playNoteWithMouse(event, 'e')" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'f')" onmousedown="playNoteWithMouse(event, 'f')" d="M375.5 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'g')" onmousedown="playNoteWithMouse(event, 'g')" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'a')" onmousedown="playNoteWithMouse(event, 'a')" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'b')" onmousedown="playNoteWithMouse(event, 'b')" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="black-key" onmouseover="playNoteWithMouse(event, 'c#')" onmousedown="playNoteWithMouse(event, 'c#')" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmouseover="playNoteWithMouse(event, 'd#')" onmousedown="playNoteWithMouse(event, 'd#')" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmouseover="playNoteWithMouse(event, 'f#')" onmousedown="playNoteWithMouse(event, 'f#')" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmouseover="playNoteWithMouse(event, 'g#')" onmousedown="playNoteWithMouse(event, 'g#')" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+        <path class="black-key" onmouseover="playNoteWithMouse(event, 'a#')" onmousedown="playNoteWithMouse(event, 'a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
     </svg>
     <script>
-        // Safari support
-        if(typeof AudioContext === 'undefined') {
-            var AudioContext = webkitAudioContext;
-        }
-        const context = new AudioContext();
+        const context = new (window.AudioContext || window.webkitAudioContext)();
         const oscillatorNode = context.createOscillator();
         const gainNode = context.createGain();
         oscillatorNode.connect(gainNode);
         gainNode.connect(context.destination);
-        gainNode.gain.setValueAtTime(0, context.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime);
         oscillatorNode.start();
+        const keysToNotes = {
+            a: 'c',
+            w: 'c#',
+            s: 'd',
+            e: 'd#',
+            d: 'e',
+            f: 'f',
+            t: 'f#',
+            g: 'g',
+            y: 'g#',
+            h: 'a',
+            u: 'a#',
+            j: 'b',
+        }
         const noteFrequencies = {
             'c': 261.63,
             'c#': 277.18,
@@ -58,12 +69,32 @@
             'a#': 466.16,
             'b': 493.88
         }
+        const playNoteWithMouse = (e, note) => {
+            // only play if the left mouse button is down
+            if(e.buttons === 1) playNote(note);
+        }
+        const playNoteWithKeyboard = (e) => {
+            // get the appropriate note
+            const note = keysToNotes[e.key];
+            // only play a note if it is defined
+            if(note) playNote(note);
+        }
         const playNote = (note) => {
             oscillatorNode.frequency.setValueAtTime(noteFrequencies[note], context.currentTime)
-            gainNode.gain.setValueAtTime(1, context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + 0.03);
         }
         const stopPlaying = () => {
-            gainNode.gain.setValueAtTime(0, context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.03);
+        }
+
+        // helper functions
+        const executeStartEnvelope = (property, envelope) => {
+            // attack
+            property.exponentialRampToValueAtTime(envelope.attack);
+            // sustain
+        }
+        const executeEndEnvelope = (property, envelope) => {
+            // 
         }
     </script>
 </body>
