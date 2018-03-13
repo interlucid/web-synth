@@ -16,10 +16,10 @@
         }
     </style>
 </head>
-<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()" onkeydown="playNoteWithKeyboard(event)" onkeyup="stopPlaying()">
+<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()" onkeydown="playNoteWithKeyboard(event)" onkeyup="stopPlayingWithKeyboard(event)">
     <h1>Web Synth</h1>
     <p>Click or type to play</p>
-    <svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="0 0 500 500" stroke-linejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 800 500" stroke-linejoin="round">
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'c')" onmousedown="playNoteWithMouse(event, 'c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'd')" onmousedown="playNoteWithMouse(event, 'd')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'e')" onmousedown="playNoteWithMouse(event, 'e')" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
@@ -27,6 +27,7 @@
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'g')" onmousedown="playNoteWithMouse(event, 'g')" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'a')" onmousedown="playNoteWithMouse(event, 'a')" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'b')" onmousedown="playNoteWithMouse(event, 'b')" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+        <path class="white-key" onmouseover="playNoteWithMouse(event, 'c2')" onmousedown="playNoteWithMouse(event, 'c2')" d="M716.4 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="black-key" onmouseover="playNoteWithMouse(event, 'c#')" onmousedown="playNoteWithMouse(event, 'c#')" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
         <path class="black-key" onmouseover="playNoteWithMouse(event, 'd#')" onmousedown="playNoteWithMouse(event, 'd#')" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
         <path class="black-key" onmouseover="playNoteWithMouse(event, 'f#')" onmousedown="playNoteWithMouse(event, 'f#')" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
@@ -41,20 +42,47 @@
         gainNode.connect(context.destination);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime);
         oscillatorNode.start();
-        const keysToNotes = {
-            a: 'c',
-            w: 'c#',
-            s: 'd',
-            e: 'd#',
-            d: 'e',
-            f: 'f',
-            t: 'f#',
-            g: 'g',
-            y: 'g#',
-            h: 'a',
-            u: 'a#',
-            j: 'b',
-        }
+        const keys = {
+            a: {
+                note: 'c'
+            },
+            w: {
+                note: 'c#'
+            },
+            s: {
+                note: 'd'
+            },
+            e: {
+                note: 'd#'
+            },
+            d: {
+                note: 'e'
+            },
+            f: {
+                note: 'f'
+            },
+            t: {
+                note: 'f#'
+            },
+            g: {
+                note: 'g'
+            },
+            y: {
+                note: 'g#'
+            },
+            h: {
+                note: 'a'
+            },
+            u: {
+                note: 'a#'
+            },
+            j: {
+                note: 'b'
+            },
+            k: {
+                note: 'c2'
+            }
+        };
         const noteFrequencies = {
             'c': 261.63,
             'c#': 277.18,
@@ -67,35 +95,53 @@
             'g#': 415.30,
             'a': 440.00,
             'a#': 466.16,
-            'b': 493.88
-        }
+            'b': 493.88,
+            'c2': 523.26
+        };
         const playNoteWithMouse = (e, note) => {
             // only play if the left mouse button is down
             if(e.buttons === 1) playNote(note);
-        }
+        };
         const playNoteWithKeyboard = (e) => {
-            // get the appropriate note
-            const note = keysToNotes[e.key];
+            let note;
+            if(keys[e.key]) {
+                // set the key to be pressed
+                keys[e.key].pressed = true;
+                // get the appropriate note
+                note = keys[e.key].note;
+            }
             // only play a note if it is defined
             if(note) playNote(note);
-        }
+        };
+        const stopPlayingWithKeyboard = (e) => {
+            if(keys[e.key]) {
+                // clear the key press
+                keys[e.key].pressed = false;
+                // if all the keys are pressed, stop playing
+                if(areAllKeysPressed()) stopPlaying();
+            }
+        };
         const playNote = (note) => {
             oscillatorNode.frequency.setValueAtTime(noteFrequencies[note], context.currentTime)
             gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + 0.03);
-        }
+        };
         const stopPlaying = () => {
             gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.03);
-        }
+        };
 
         // helper functions
+
+        const areAllKeysPressed = () => {
+            return !Object.values(keys).map(key => key.pressed).reduce((acc, cur) => acc || cur);
+        };
         const executeStartEnvelope = (property, envelope) => {
             // attack
             property.exponentialRampToValueAtTime(envelope.attack);
             // sustain
-        }
+        };
         const executeEndEnvelope = (property, envelope) => {
             // 
-        }
+        };
     </script>
 </body>
 </html>
