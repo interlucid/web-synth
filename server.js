@@ -32,6 +32,13 @@ app.get('/api/patch/:id', (req, res) => {
     res.status(404).send(index > -1 ? patches[index] : `Patch ${req.params.id} not found.`);
 });
 
+app.put('/api/patch/:id', (req, res) => {
+    const index = patches.findIndex(el => el.id == req.params.id);
+    if(index === -1) `Patch ${req.params.id} not found.`
+    patches[index] = req.body;
+    res.status(404).send(patches[index]);
+});
+
 app.delete('/api/patch/:id', (req, res) => {
     const index = patches.findIndex(el => el.id == req.params.id);
     if(index > -1) {

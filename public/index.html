@@ -34,77 +34,40 @@
         <path class="black-key" onmouseover="playNoteWithMouse(event, 'g#')" onmousedown="playNoteWithMouse(event, 'g#')" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
         <path class="black-key" onmouseover="playNoteWithMouse(event, 'a#')" onmousedown="playNoteWithMouse(event, 'a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
     </svg>
+    <div id="amplitude-envelope">
+        Attack (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeAttack(value)">
+        Sustain (percentage): <input type="range" min="0" max="100" value="80" oninput="changeSustain(value)">
+        Decay (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeDecay(value)">
+        Release (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeRelease(value)">
+    </div>
+    <script src="./lib/notes.js"></script>
+    <script src="./features/amplitude-envelope.js"></script>
     <script>
+        // set up context and oscillator
         const context = new (window.AudioContext || window.webkitAudioContext)();
         const oscillatorNode = context.createOscillator();
         const gainNode = context.createGain();
         oscillatorNode.connect(gainNode);
         gainNode.connect(context.destination);
+        // start at a very low volume to simulate no sound (and eliminate pop)
         gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime);
         oscillatorNode.start();
-        const keys = {
-            a: {
-                note: 'c'
-            },
-            w: {
-                note: 'c#'
-            },
-            s: {
-                note: 'd'
-            },
-            e: {
-                note: 'd#'
-            },
-            d: {
-                note: 'e'
-            },
-            f: {
-                note: 'f'
-            },
-            t: {
-                note: 'f#'
-            },
-            g: {
-                note: 'g'
-            },
-            y: {
-                note: 'g#'
-            },
-            h: {
-                note: 'a'
-            },
-            u: {
-                note: 'a#'
-            },
-            j: {
-                note: 'b'
-            },
-            k: {
-                note: 'c2'
-            }
-        };
-        const noteFrequencies = {
-            'c': 261.63,
-            'c#': 277.18,
-            'd': 293.66,
-            'd#': 311.13,
-            'e': 329.63,
-            'f': 349.23,
-            'f#': 369.99,
-            'g': 392.00,
-            'g#': 415.30,
-            'a': 440.00,
-            'a#': 466.16,
-            'b': 493.88,
-            'c2': 523.26
-        };
+
+        // playback
+
+        let amplitudeEnvelope = {
+            attack: .1,
+            sustain: .6,
+            decay: .7,
+            release: .1
+        }
         const playNoteWithMouse = (e, note) => {
             // only play if the left mouse button is down
             if(e.buttons === 1) playNote(note);
         };
         const playNoteWithKeyboard = (e) => {
             let note;
-            if(keys[e.key]) {
+            if(keys[e.key] && !keys[e.key].pressed) {
                 // set the key to be pressed
                 keys[e.key].pressed = true;
                 // get the appropriate note
@@ -122,11 +85,21 @@
             }
         };
         const playNote = (note) => {
-            oscillatorNode.frequency.setValueAtTime(noteFrequencies[note], context.currentTime)
-            gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + 0.03);
+            oscillatorNode.frequency.exponentialRampToValueAtTime(noteFrequencies[note], context.currentTime + 0.03)
+            // cancel previous ramp
+            gainNode.gain.cancelAndHoldAtTime(context.currentTime);
+            // reset gain to 0
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.03);
+            // ramp up for attack amount of time
+            gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + amplitudeEnvelope.attack);
+            // gainNode.gain.setValueAtTime(1, context.currentTime + amplitudeEnvelope.attack);
+            // ramp down to sustain level for decay amount of time
+            gainNode.gain.exponentialRampToValueAtTime(amplitudeEnvelope.sustain, context.currentTime + amplitudeEnvelope.decay);
         };
         const stopPlaying = () => {
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.03);
+            gainNode.gain.cancelAndHoldAtTime(context.currentTime);
+            // ramp down for release amount of time
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + amplitudeEnvelope.release);
         };
 
         // helper functions
@@ -134,6 +107,8 @@
         const areAllKeysPressed = () => {
             return !Object.values(keys).map(key => key.pressed).reduce((acc, cur) => acc || cur);
         };
+
+
         const executeStartEnvelope = (property, envelope) => {
             // attack
             property.exponentialRampToValueAtTime(envelope.attack);
