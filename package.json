@@ -24,6 +24,11 @@
   },
   "homepage": "https://github.com/interlucid/web-synth#readme",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "lit-html": "^0.9.0"
+  },
+  "resolutions": {
+    "depd": "1.1.2",
+    "setprototypeof": "1.1.0"
   }
 }

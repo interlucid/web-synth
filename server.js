@@ -6,6 +6,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.set('json spaces', 2);
 app.use(express.static('public'));
+app.use('/scripts', express.static(__dirname + '/node_modules/'));
 
 let patches = [];
 let latestPatchId = 0;

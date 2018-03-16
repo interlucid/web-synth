@@ -17,8 +17,9 @@
     </style>
 </head>
 <body onmouseup="stopPlaying()" onmouseleave="stopPlaying()" onkeydown="playNoteWithKeyboard(event)" onkeyup="stopPlayingWithKeyboard(event)">
-    <h1>Web Synth</h1>
-    <p>Click or type to play</p>
+    <script type="module" src="./elements/keyboard-control.js"></script>
+    <p>Click or type to play.</p><script>if(!AudioParam.prototype.cancelAndHoldAtTime) document.write("Note: I'm using some experimental features of the web audio API that for now only work in Chrome.")</script>
+    <div id="lit"></div>
     <svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 800 500" stroke-linejoin="round">
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'c')" onmousedown="playNoteWithMouse(event, 'c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
         <path class="white-key" onmouseover="playNoteWithMouse(event, 'd')" onmousedown="playNoteWithMouse(event, 'd')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
