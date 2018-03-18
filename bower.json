@@ -1,0 +1,27 @@
+{
+  "name": "web-synth",
+  "description": "A simple synthesizer built with the web audio API",
+  "main": "public/index.html",
+  "authors": [
+    "Brandon der Blätter"
+  ],
+  "license": "UNLICENSED",
+  "keywords": [
+    "web",
+    "audio",
+    "api",
+    "synth",
+    "interlucid"
+  ],
+  "homepage": "https://github.com/interlucid/web-synth",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.5.0"
+  }
+}

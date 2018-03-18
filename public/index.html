@@ -4,120 +4,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Web Audio Synthesizer</title>
+    <link rel="import" href="./elements/keyboard-control.html">
     <style>
-        .white-key {
-            fill:#fff;
-            stroke-width:1px;
-            stroke:#000;
+        body {
+            font-family: 'Helvetica', sans-serif;
+            margin: 0;
         }
-        .black-key {
-            stroke-width:1px;
-            stroke:#000;
+        
+        footer {
+            padding: 2em;
+            text-align: center;
+            color: #777;
         }
     </style>
 </head>
-<body onmouseup="stopPlaying()" onmouseleave="stopPlaying()" onkeydown="playNoteWithKeyboard(event)" onkeyup="stopPlayingWithKeyboard(event)">
-    <script type="module" src="./elements/keyboard-control.js"></script>
-    <p>Click or type to play.</p><script>if(!AudioParam.prototype.cancelAndHoldAtTime) document.write("Note: I'm using some experimental features of the web audio API that for now only work in Chrome.")</script>
-    <div id="lit"></div>
-    <svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 800 500" stroke-linejoin="round">
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'c')" onmousedown="playNoteWithMouse(event, 'c')" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'd')" onmousedown="playNoteWithMouse(event, 'd')" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'e')" onmousedown="playNoteWithMouse(event, 'e')" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'f')" onmousedown="playNoteWithMouse(event, 'f')" d="M375.5 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'g')" onmousedown="playNoteWithMouse(event, 'g')" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'a')" onmousedown="playNoteWithMouse(event, 'a')" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'b')" onmousedown="playNoteWithMouse(event, 'b')" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="white-key" onmouseover="playNoteWithMouse(event, 'c2')" onmousedown="playNoteWithMouse(event, 'c2')" d="M716.4 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-        <path class="black-key" onmouseover="playNoteWithMouse(event, 'c#')" onmousedown="playNoteWithMouse(event, 'c#')" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmouseover="playNoteWithMouse(event, 'd#')" onmousedown="playNoteWithMouse(event, 'd#')" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmouseover="playNoteWithMouse(event, 'f#')" onmousedown="playNoteWithMouse(event, 'f#')" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmouseover="playNoteWithMouse(event, 'g#')" onmousedown="playNoteWithMouse(event, 'g#')" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-        <path class="black-key" onmouseover="playNoteWithMouse(event, 'a#')" onmousedown="playNoteWithMouse(event, 'a#')" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-    </svg>
-    <div id="amplitude-envelope">
-        Attack (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeAttack(value)">
-        Sustain (percentage): <input type="range" min="0" max="100" value="80" oninput="changeSustain(value)">
-        Decay (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeDecay(value)">
-        Release (seconds): <input type="range" min="1" max="2000" value="5" oninput="changeRelease(value)">
-    </div>
+<body>
+    <script>if(!AudioParam.prototype.cancelAndHoldAtTime) document.write("Note: I'm using some experimental features of the web audio API that for now only work in Chrome.")</script>
+    <keyboard-control></keyboard-control>
+    <footer>Copyright © 2018 by Brandon der Blätter.  Star or fork on <a href="https://github.com/interlucid/web-synth">GitHub</a>.</footer>
     <script src="./lib/notes.js"></script>
     <script src="./features/amplitude-envelope.js"></script>
-    <script>
-        // set up context and oscillator
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillatorNode = context.createOscillator();
-        const gainNode = context.createGain();
-        oscillatorNode.connect(gainNode);
-        gainNode.connect(context.destination);
-        // start at a very low volume to simulate no sound (and eliminate pop)
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime);
-        oscillatorNode.start();
-
-        // playback
-
-        let amplitudeEnvelope = {
-            attack: .1,
-            sustain: .6,
-            decay: .7,
-            release: .1
-        }
-        const playNoteWithMouse = (e, note) => {
-            // only play if the left mouse button is down
-            if(e.buttons === 1) playNote(note);
-        };
-        const playNoteWithKeyboard = (e) => {
-            let note;
-            if(keys[e.key] && !keys[e.key].pressed) {
-                // set the key to be pressed
-                keys[e.key].pressed = true;
-                // get the appropriate note
-                note = keys[e.key].note;
-            }
-            // only play a note if it is defined
-            if(note) playNote(note);
-        };
-        const stopPlayingWithKeyboard = (e) => {
-            if(keys[e.key]) {
-                // clear the key press
-                keys[e.key].pressed = false;
-                // if all the keys are pressed, stop playing
-                if(areAllKeysPressed()) stopPlaying();
-            }
-        };
-        const playNote = (note) => {
-            oscillatorNode.frequency.exponentialRampToValueAtTime(noteFrequencies[note], context.currentTime + 0.03)
-            // cancel previous ramp
-            gainNode.gain.cancelAndHoldAtTime(context.currentTime);
-            // reset gain to 0
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.03);
-            // ramp up for attack amount of time
-            gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + amplitudeEnvelope.attack);
-            // gainNode.gain.setValueAtTime(1, context.currentTime + amplitudeEnvelope.attack);
-            // ramp down to sustain level for decay amount of time
-            gainNode.gain.exponentialRampToValueAtTime(amplitudeEnvelope.sustain, context.currentTime + amplitudeEnvelope.decay);
-        };
-        const stopPlaying = () => {
-            gainNode.gain.cancelAndHoldAtTime(context.currentTime);
-            // ramp down for release amount of time
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + amplitudeEnvelope.release);
-        };
-
-        // helper functions
-
-        const areAllKeysPressed = () => {
-            return !Object.values(keys).map(key => key.pressed).reduce((acc, cur) => acc || cur);
-        };
-
-
-        const executeStartEnvelope = (property, envelope) => {
-            // attack
-            property.exponentialRampToValueAtTime(envelope.attack);
-            // sustain
-        };
-        const executeEndEnvelope = (property, envelope) => {
-            // 
-        };
-    </script>
 </body>
 </html>

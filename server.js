@@ -6,7 +6,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.set('json spaces', 2);
 app.use(express.static('public'));
-app.use('/scripts', express.static(__dirname + '/node_modules/'));
+app.use('/scripts', express.static(__dirname + '/bower_components/'));
 
 let patches = [];
 let latestPatchId = 0;
@@ -15,7 +15,25 @@ app.get('/api/patches', (req, res) => {
     res.send(patches);
 });
 
+// simple search
+app.get('/api/patches/:query', (req, res) => {
+    const patch = findPatch(req.params.query, res)
+    res.send(patch);
+});
+
 app.post('/api/patches', (req, res) => {
+    const existingPatch = patches.find(patch => { 
+        return patch.name.toLowerCase() === req.body.name.toLowerCase();
+    });
+    if(existingPatch) {
+        const index = getPatchIndex(existingPatch.id, res);
+        patches[index] = {
+            ...req.body,
+            id: patches[index].id
+        };
+        res.send(existingPatch)
+        return;
+    }
     // create new patch
     latestPatchId += 1;
     const patch = {
@@ -29,24 +47,33 @@ app.post('/api/patches', (req, res) => {
 });
 
 app.get('/api/patch/:id', (req, res) => {
-    const index = patches.findIndex(el => el.id == req.params.id);
-    res.status(404).send(index > -1 ? patches[index] : `Patch ${req.params.id} not found.`);
+    const index = getPatchIndex(req.params.id, res);
+    res.status(200).send(patches[index]);
 });
 
 app.put('/api/patch/:id', (req, res) => {
-    const index = patches.findIndex(el => el.id == req.params.id);
-    if(index === -1) `Patch ${req.params.id} not found.`
+    const index = getPatchIndex(req.params.id, res);
     patches[index] = req.body;
-    res.status(404).send(patches[index]);
+    res.status(200).send(patches[index]);
 });
 
 app.delete('/api/patch/:id', (req, res) => {
-    const index = patches.findIndex(el => el.id == req.params.id);
-    if(index > -1) {
-        patches.splice(index, 1);
-        res.send(`Successfully delete patch ${req.params.id}.`)
-    } else res.status(404).send(`Patch ${req.params.id} not found.`);
+    const index = getPatchIndex(req.params.id, res);
+    patches.splice(index, 1);
+    res.send(`Successfully deleted patch ${req.params.id}.`)
 });
+
+const findPatch = (query, res) => {
+    const patch = patches.find(patch => patch.name.includes(query));
+    if(!patch) res.status(404).send(`Found no matching patches`);
+    return patch;
+}
+
+const getPatchIndex = (id, res) => {
+    const index = patches.findIndex(el => el.id == id);
+    if(index === -1) res.status(404).send(`Patch ${id} not found.`);
+    return index;
+}
 
 const port = 3000;
 
