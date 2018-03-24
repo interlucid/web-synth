@@ -66,17 +66,21 @@ export class LitKeyboard extends LitElement {
         // start at a very low volume to simulate no sound (and eliminate pop)
         this.gainNode.gain.exponentialRampToValueAtTime(0.0001, this.context.currentTime);
         this.oscillatorNode.start();
+        // add some listeners for controlling how notes will play
         window.addEventListener('keydown', (e) => {
             this.playNoteWithKeyboard(e);
         })
         window.addEventListener('keyup', (e) => {
             this.stopPlayingWithKeyboard(e);
         })
+        window.addEventListener('mouseup', (e) => {
+            this.stopPlaying(e);
+        })
     }
 
     playNoteWithMouse(e, note) {
         // only play if the left mouse button is down
-        if(e.buttons === 1) this.playNote(e.target.getAttribute('note'));
+        if(e.buttons === 1) this.playNote(note);
     }
 
     playNoteWithKeyboard(e) {
@@ -175,21 +179,23 @@ export class LitKeyboard extends LitElement {
     }
 
     keyboardOctave() {
+        const keyboardLength = 7;
+
+        const hideBlackKey = (index) => {
+            return index % 7 === 2 || index % 7 === 6;
+        }
+
+        const whiteKeys = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'c2'];
+        const blackKeys = ['c#', 'd#', '', 'f#', 'g#', 'a#', '', 'c#2'];
+
         return html`
             <svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 800 500" stroke-linejoin="round">
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="c" d="M119.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="d" d="M205 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="e" d="M290.3 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="f" d="M375.5 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="g" d="M460.6 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="a" d="M545.9 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="b" d="M631 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="white-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="c2" d="M716.4 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
-                <path class="black-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="c#" d="M146 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-                <path class="black-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="d#" d="M231.8 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-                <path class="black-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="f#" d="M401 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-                <path class="black-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="g#" d="M488 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
-                <path class="black-key" on-mouseover="playNoteWithMouse" on-mousedown="playNoteWithMouse" note="a#" d="M573 42.5c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+                ${ Array.from(Array(keyboardLength + 1).keys()).map(index => svg`
+                    <path class="white-key" on-mouseover="${ e => this.playNoteWithMouse(e, whiteKeys[index]) }" on-mousedown="${ e => this.playNoteWithMouse(e, whiteKeys[index]) }" d$="M${120 + 85 * index} 46.3c0-5.4-4.4-9.8-9.8-9.8l-65.7 0c-5.4 0-9.8 4.4-9.8 9.8l0 409.8c0 5.4 4.4 9.8 9.8 9.8l65.7 0c5.4 0 9.8-4.4 9.8-9.8l0-409.8Z"/>
+                `) }
+                ${ Array.from(Array(keyboardLength).keys()).map(index => hideBlackKey(index) ? '' : svg`
+                    <path class="black-key" on-mouseover="${ e => this.playNoteWithMouse(e, blackKeys[index]) }" on-mousedown="${ e => this.playNoteWithMouse(e, blackKeys[index]) }" d$="M${146 + 85 * index} 42.6c0-3.3-2.7-6-6-6l-40.6 0c-3.3 0-6 2.7-6 6l0 258.1c0 3.3 2.7 6 6 6l40.6 0c3.3 0 6-2.7 6-6l0-258.1Z"/>
+                `) }
             </svg>
         `;
     }
