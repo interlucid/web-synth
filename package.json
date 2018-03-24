@@ -24,7 +24,10 @@
   },
   "homepage": "https://github.com/interlucid/web-synth#readme",
   "dependencies": {
-    "express": "^4.16.2"
+    "@polymer/lit-element": "^0.2.2",
+    "express": "^4.16.2",
+    "immutable": "^4.0.0-rc.9",
+    "npm": "^5.7.1"
   },
   "resolutions": {
     "depd": "1.1.2",

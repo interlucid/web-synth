@@ -1,4 +1,4 @@
-<link rel="import" href="../scripts/polymer/polymer-element.html">
+<link rel="import" href="../bower_scripts/polymer/polymer-element.html">
 
 <dom-module id="keyboard-control">
 
@@ -97,8 +97,7 @@
 
     </style>
 
-    <h1>Web Synth</h1>
-    <p>Click or type to play.</p>
+    <h1>OLD</h1>
 
     <div on-mouseup="stopPlaying" on-mouseleave="stopPlaying" on-keydown="playNoteWithKeyboard" on-keyup="stopPlayingWithKeyboard">
         <svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 800 500" stroke-linejoin="round">
@@ -299,8 +298,7 @@
                 }),
                 headers: new Headers({
                     'Content-Type': 'application/json'
-                }),
-                mode: 'cors'
+                })
             });
         }
 
