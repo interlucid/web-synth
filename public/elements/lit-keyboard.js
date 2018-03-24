@@ -3,6 +3,13 @@ import { html, LitElement } from '../scripts/@polymer/lit-element/lit-element.js
 import { fromJS, getIn, setIn, Map } from '../scripts/immutable/dist/immutable.es.js';
 import { styles } from '../styles/main.js';
 
+const statusEnum = {
+    ERROR: -1,
+    DEFAULT: 0,
+    SUCCESS: 1,
+    LOADING: 2
+}
+
 export class LitKeyboard extends LitElement {
 
     static get properties() {
@@ -12,7 +19,8 @@ export class LitKeyboard extends LitElement {
             oscillatorNode: Object,
             gainNode: Object,
             biquadFilterNode: Object,
-            saveMode: Boolean
+            saveMode: Boolean,
+            status: Object
         }
     }
 
@@ -65,15 +73,6 @@ export class LitKeyboard extends LitElement {
             this.stopPlayingWithKeyboard(e);
         })
     }
-
-    // attributeChangedCallback(name, oldValue, newValue) {
-    //     console.log('attributeChangedCallback', name, oldValue, newValue);
-    // }
-
-    // _propertiesChanged(currentProps, changedProps, oldProps) {
-    //     super();
-    //     console.log('attributeChangedCallback', currentProps, changedProps, oldProps);
-    // }
 
     playNoteWithMouse(e, note) {
         // only play if the left mouse button is down
@@ -131,20 +130,48 @@ export class LitKeyboard extends LitElement {
     }
 
     saveToDatabase() {
+        this.status = statusEnum.LOADING;
         fetch('/api/patches', {
             method: 'POST',
             body: JSON.stringify(this.patch),
             headers: new Headers({
                 'Content-Type': 'application/json'
             })
+        }).then(response => {
+            this.status = statusEnum.SUCCESS;
+        }).catch(error => {
+            this.status = statusEnum.ERROR;
         });
+        window.setTimeout(() => {
+            this.status = statusEnum.DEFAULT;
+        }, 3000)
     }
     
     loadFromDatabase() {
+        this.status = statusEnum.LOADING;
         fetch(`/api/patches/${ getIn(this.patch, ['name']) }`)
             .then(async response => {
                 this.patch = await response.json();
-            });
+                this.status = statusEnum.SUCCESS;
+        }).catch(error => {
+            this.status = statusEnum.ERROR;
+        });
+        window.setTimeout(() => {
+            this.status = statusEnum.DEFAULT;
+        }, 3000)
+    }
+
+    getStatus(status) {
+        switch(status) {
+            case statusEnum.ERROR:
+                return 'Error';
+            case statusEnum.DEFAULT:
+                return '';
+            case statusEnum.LOADING:
+                return 'Loading...';
+            case statusEnum.SUCCESS:
+                return 'Success';
+        }
     }
 
     keyboardOctave() {
@@ -238,12 +265,13 @@ export class LitKeyboard extends LitElement {
             </div>
             <p>Tip: Filter works best with sawtooth oscillators.</p>
             <p>
-                <button on-click="${ e => this.saveMode = false }">Load Patch</button>
-                <button on-click="${ e => this.saveMode = true }">Save Patch</button>
+                <button class$="${ this.saveMode ? '' : 'active' }" on-click="${ e => this.saveMode = false }">Load...</button>
+                <button class$="${ this.saveMode ? 'active' : '' }" on-click="${ e => this.saveMode = true }">Save...</button>
             </p>
             <h2>${ this.saveMode ? 'Save to' : 'Load from' } database</h2>
             <label>Name: <input type="text" value="${ getIn(this.patch, ['name']) }" on-input="${ e => this.patch = setIn(this.patch, ['name'], e.target.value) }"></label>
             <button on-click="${ e => this.saveMode ? this.saveToDatabase() : this.loadFromDatabase() }">${ this.saveMode ? 'Save' : 'Load' }</button>
+            <p>${ this.getStatus(this.status) }</p>
         `;
     }
 
