@@ -10,14 +10,21 @@ export const styles = html`
         }
 
         .white-key {
-            fill:#fff;
-            stroke-width:1px;
-            stroke:#000;
+            fill: #fff;
+            stroke-width: 1px;
+            stroke: #000;
         }
 
         .black-key {
-            stroke-width:1px;
-            stroke:#000;
+            stroke-width: 1px;
+            stroke: #000;
+        }
+
+        .white-key:hover,
+        .black-key:hover,
+        .active-key {
+            stroke-width: 5px;
+            stroke: var(--primary);
         }
 
         .horizontal-container {

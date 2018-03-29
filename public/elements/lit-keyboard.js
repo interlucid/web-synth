@@ -85,7 +85,13 @@ export class LitKeyboard extends LitElement {
 
     playNoteWithKeyboard(e) {
         let note;
-        if(keys[e.key] && !keys[e.key].pressed) {
+        console.log();
+        if(     keys[e.key] 
+            &&  !keys[e.key].pressed
+            // don't play when a text field is in focus
+            &&  !(  this.shadowRoot.activeElement
+                &&  this.shadowRoot.activeElement.getAttribute('type') === 'text')
+        ) {
             // set the key to be pressed
             keys[e.key].pressed = true;
             // get the appropriate note
@@ -155,7 +161,7 @@ export class LitKeyboard extends LitElement {
         this.status = statusEnum.LOADING;
         fetch(`/api/patches/${ getIn(this.patch, ['name']) }`)
             .then(async response => {
-                this.patch = await response.json();
+                this.patch = await response.json() || this.patch;
                 this.status = statusEnum.SUCCESS;
         }).catch(error => {
             this.status = statusEnum.ERROR;

@@ -27,6 +27,7 @@
     "@polymer/lit-element": "^0.2.2",
     "express": "^4.16.2",
     "immutable": "^4.0.0-rc.9",
+    "mongodb": "^3.0.5",
     "npm": "^5.7.1"
   },
   "resolutions": {
