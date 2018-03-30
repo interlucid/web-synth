@@ -4,8 +4,10 @@ export const styles = html`
     <style>
 
         :host {
-            display: block;
-            padding: 2em;
+            --primary: #e6730f;
+        }
+
+        :root {
             --primary: #e6730f;
         }
 
@@ -53,17 +55,24 @@ export const styles = html`
         textarea {
             -webkit-appearance: none;
             background: transparent;
-            border: solid #BBB .1em;
+            border: solid #ddd .1em;
             border-radius: .3em;
             padding: .5em;
             outline: none;
             font-size: 1em;
         }
 
+        button:focus,
         input:focus,
-        textarea:focus,
-        button:focus {
+        textarea:focus {
             border-color: #000;
+        }
+
+        .active,
+        button:hover {
+            background-color: var(--primary);
+            border-color: rgba(0, 0, 0, 0);
+            color: white;
         }
 
         input[type=range]::-webkit-slider-thumb {
@@ -97,19 +106,6 @@ export const styles = html`
             border-radius: 5em;
             background: var(--primary);
         }
-
-        button {
-            border: solid #bbb .05em;
-            border-radius: .3em;
-            padding: .5em;
-            cursor: pointer;
-            
-        }
-
-        .active,
-        button:hover {
-            background-color: var(--primary);
-            color: white;
-        }
+        
     </style>
 `

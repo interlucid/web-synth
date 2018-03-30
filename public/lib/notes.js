@@ -1,5 +1,5 @@
 // map keys to notes
-const keys = {
+export const keys = {
     a: {
         note: 'c'
     },
@@ -42,7 +42,7 @@ const keys = {
 };
 
 // map notes to frequencies
-const noteFrequencies = {
+export const noteFrequencies = {
     'c': 261.63,
     'c#': 277.18,
     'd': 293.66,

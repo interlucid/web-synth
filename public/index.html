@@ -20,11 +20,15 @@
 <body>
     <h1>Web Synth</h1>
     <p>Click or type to play.</p>
-    <script>if(!AudioParam.prototype.cancelAndHoldAtTime) document.write("Note: I'm using some experimental features of the web audio API that for now only work in Chrome.")</script>
+    <script>
+        // allow browsers to not die because of this little thing
+        AudioParam.prototype.cancelAndHoldAtTime = AudioParam.prototype.cancelAndHoldAtTime || AudioParam.prototype.cancelScheduledValues;
+        if(!AudioParam.prototype.cancelAndHoldAtTime) document.write("Note: I'm using some experimental features of the web audio API that for now only work in Chrome.")
+    </script>
+    <script type="text/javascript" src="../scripts/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script type="module" src="./elements/lit-keyboard.js"></script>
     <lit-keyboard></lit-keyboard>
     <footer>Copyright © 2018 by Brandon der Blätter.  Star or fork on <a href="https://github.com/interlucid/web-synth" target="_blank">GitHub</a>.</footer>
-    <script src="./lib/notes.js"></script>
     <script src="./features/amplitude-envelope.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import { svg } from '../scripts/lit-html/lit-html.js';
 import { html, LitElement } from '../scripts/@polymer/lit-element/lit-element.js';
 import { fromJS, getIn, setIn, Map } from '../scripts/immutable/dist/immutable.es.js';
 import { styles } from '../styles/main.js';
+import * as lib from '../lib/notes.js';
 
 const statusEnum = {
     ERROR: -1,
@@ -85,24 +86,23 @@ export class LitKeyboard extends LitElement {
 
     playNoteWithKeyboard(e) {
         let note;
-        console.log();
-        if(     keys[e.key] 
-            &&  !keys[e.key].pressed
+        if(     lib.keys[e.key] 
+            &&  !lib.keys[e.key].pressed
             // don't play when a text field is in focus
             &&  !(  this.shadowRoot.activeElement
                 &&  this.shadowRoot.activeElement.getAttribute('type') === 'text')
         ) {
             // set the key to be pressed
-            keys[e.key].pressed = true;
+            lib.keys[e.key].pressed = true;
             // get the appropriate note
-            note = keys[e.key].note;
+            note = lib.keys[e.key].note;
         }
         // only play a note if it is defined
         if(note) this.playNote(note);
     }
 
     playNote(note) {
-        this.oscillatorNode.frequency.exponentialRampToValueAtTime(noteFrequencies[note], this.context.currentTime + 0.03)
+        this.oscillatorNode.frequency.exponentialRampToValueAtTime(lib.noteFrequencies[note], this.context.currentTime + 0.03)
         // cancel previous ramp
         this.gainNode.gain.cancelAndHoldAtTime(this.context.currentTime);
         // reset gain to 0
@@ -117,9 +117,9 @@ export class LitKeyboard extends LitElement {
     
 
     stopPlayingWithKeyboard(e) {
-        if(keys[e.key]) {
+        if(lib.keys[e.key]) {
             // clear the key press
-            keys[e.key].pressed = false;
+            lib.keys[e.key].pressed = false;
             // if all the keys are pressed, stop playing
             if(this.areAllKeysPressed()) this.stopPlaying();
         }
@@ -132,7 +132,7 @@ export class LitKeyboard extends LitElement {
     }
 
     areAllKeysPressed() {
-        return !Object.values(keys).map(key => key.pressed).reduce((acc, cur) => acc || cur);
+        return !Object.values(lib.keys).map(key => key.pressed).reduce((acc, cur) => acc || cur);
     }
 
     computeFilterFreq(log) {
