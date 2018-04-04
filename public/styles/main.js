@@ -4,11 +4,13 @@ export const styles = html`
     <style>
 
         :host {
-            --primary: #e6730f;
+            --primary-values: 230, 115, 15;
+            --primary: rgb(var(--primary-values));
         }
-
+        
         :root {
-            --primary: #e6730f;
+            --primary-values: 230, 115, 15;
+            --primary: rgb(var(--primary-values));
         }
 
         .white-key {
@@ -55,7 +57,7 @@ export const styles = html`
         textarea {
             -webkit-appearance: none;
             background: transparent;
-            border: solid #ddd .1em;
+            border: solid rgba(var(--primary-values), .5) .1em;
             border-radius: .3em;
             padding: .5em;
             outline: none;
@@ -108,4 +110,4 @@ export const styles = html`
         }
         
     </style>
-`
+`;

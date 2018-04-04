@@ -3,6 +3,7 @@ import { html, LitElement } from '../scripts/@polymer/lit-element/lit-element.js
 import { fromJS, getIn, setIn, Map } from '../scripts/immutable/dist/immutable.es.js';
 import { styles } from '../styles/main.js';
 import * as lib from '../lib/notes.js';
+import * as auth from '../lib/auth.js';
 
 const statusEnum = {
     ERROR: -1,
@@ -16,6 +17,8 @@ export class LitKeyboard extends LitElement {
     static get properties() {
         return {
             patch: Object,
+            patches: Array,
+            profile: Object,
             context: Object,
             oscillatorNode: Object,
             gainNode: Object,
@@ -55,7 +58,7 @@ export class LitKeyboard extends LitElement {
             waveType: 'sawtooth',
             filterFreqLog: 84
         });
-        // todo: dummy fill cancelAndHoldAtTime for other browsers
+        this.profile = fromJS({});
         // set up this.context and oscillator
         this.context = new (window.AudioContext || window.webkitAudioContext)();
         this.oscillatorNode = this.context.createOscillator();
@@ -77,6 +80,21 @@ export class LitKeyboard extends LitElement {
         window.addEventListener('mouseup', (e) => {
             this.stopPlaying(e);
         })
+        // set up authentication
+        auth.handleAuthentication(this);
+        auth.getProfile(this);
+    }
+
+    updateProfile(profile) {
+        this.profile = fromJS(profile);
+        this.invalidate();
+    }
+
+    authCallback() {
+        auth.getProfile(this);
+        fetch('/api/patches').then(async res => {
+            this.patches = fromJS(await res.json())
+        });
     }
 
     playNoteWithMouse(e, note) {
@@ -269,6 +287,26 @@ export class LitKeyboard extends LitElement {
     render() {
         return html`
             ${ styles }
+            <div>
+            ${ auth.isAuthenticated() ? 
+                html`
+                    Logged in as ${ getIn(this.profile, ['name']) }.  <button on-click="${ e => auth.logout(this) }">Log out</button>
+                    <select>
+                        ${ !this.patches ? '' : this.patches.map(patch => html`<option>${ getIn(patch, ['name']) }</option>`) }
+                    </select>
+                    <p>
+                        <button class$="${ this.saveMode ? '' : 'active' }" on-click="${ e => this.saveMode = false }">Load...</button>
+                        <button class$="${ this.saveMode ? 'active' : '' }" on-click="${ e => this.saveMode = true }">Save...</button>
+                    </p>
+                    <h2>${ this.saveMode ? 'Save to' : 'Load from' } database</h2>
+                    <label>Name: <input type="text" value="${ getIn(this.patch, ['name']) }" on-input="${ e => this.patch = setIn(this.patch, ['name'], e.target.value) }"></label>
+                    <button hidden?="${ !getIn(this.patch, ['name']) }" on-click="${ e => this.saveMode ? this.saveToDatabase() : this.loadFromDatabase() }">${ this.saveMode ? 'Save' : 'Load' }</button>
+                    <p>${ this.getStatus(this.status) }</p>
+                `
+                :
+                html`<button on-click="${ e => auth.login(this) }">Log in</button>`
+            }
+            </div>
             ${ this.keyboardOctave() }
             <div class="horizontal-container">
                 ${ this.amplitudeEnvelope() }
@@ -276,14 +314,6 @@ export class LitKeyboard extends LitElement {
                 ${ this.filter() }
             </div>
             <p>Tip: Filter works best with sawtooth oscillators.</p>
-            <p>
-                <button class$="${ this.saveMode ? '' : 'active' }" on-click="${ e => this.saveMode = false }">Load...</button>
-                <button class$="${ this.saveMode ? 'active' : '' }" on-click="${ e => this.saveMode = true }">Save...</button>
-            </p>
-            <h2>${ this.saveMode ? 'Save to' : 'Load from' } database</h2>
-            <label>Name: <input type="text" value="${ getIn(this.patch, ['name']) }" on-input="${ e => this.patch = setIn(this.patch, ['name'], e.target.value) }"></label>
-            <button on-click="${ e => this.saveMode ? this.saveToDatabase() : this.loadFromDatabase() }">${ this.saveMode ? 'Save' : 'Load' }</button>
-            <p>${ this.getStatus(this.status) }</p>
         `;
     }
 
