@@ -39,6 +39,10 @@ export const styles = html`
             margin-left: 2em;
         }
 
+        .vertical-container > * + * {
+            margin-top: 2em;
+        }
+
         .sliders {
             min-width: 30%;
         }
@@ -50,6 +54,23 @@ export const styles = html`
 
         .sliders label > * {
             flex-basis: 50%;
+        }
+
+        .options {
+            overflow: scroll;
+            border: solid rgba(var(--primary-values), .5) .1em;
+            border-radius: .3em;
+        }
+
+        .options > * {
+            display: block;
+            border: none;
+            border-radius: 0;
+            width: 100%;
+        }
+
+        .options > * + * {
+            border-top: solid rgba(var(--primary-values), .5) .1em;
         }
 
         button,

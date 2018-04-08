@@ -16,6 +16,7 @@ export class LitKeyboard extends LitElement {
 
     static get properties() {
         return {
+            defaultPatch: Object,
             patch: Object,
             patches: Array,
             profile: Object,
@@ -47,7 +48,7 @@ export class LitKeyboard extends LitElement {
 
     constructor() {
         super();
-        this.patch = fromJS({
+        this.defaultPatch = fromJS({
             name,
             ampEnv: {
                 attack: 0.1,
@@ -58,6 +59,7 @@ export class LitKeyboard extends LitElement {
             waveType: 'sawtooth',
             filterFreqLog: 84
         });
+        this.patch = this.defaultPatch;
         this.profile = fromJS({});
         // set up this.context and oscillator
         this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -87,14 +89,12 @@ export class LitKeyboard extends LitElement {
 
     updateProfile(profile) {
         this.profile = fromJS(profile);
+        this.getUserPatches();
         this.invalidate();
     }
 
     authCallback() {
         auth.getProfile(this);
-        fetch('/api/patches').then(async res => {
-            this.patches = fromJS(await res.json())
-        });
     }
 
     playNoteWithMouse(e, note) {
@@ -157,29 +157,80 @@ export class LitKeyboard extends LitElement {
         return Math.pow(2, log / 10).toFixed(0);
     }
 
+    // create a new headers object for requests
+    authHeaders() {
+        return new Headers({
+            'Authorization': `Bearer ${ localStorage.getItem('access_token') }`,
+            'Content-Type': 'application/json'
+        });
+    }
+
+    // post if no ID, put with ID otherwise
     saveToDatabase() {
         this.status = statusEnum.LOADING;
-        fetch('/api/patches', {
-            method: 'POST',
-            body: JSON.stringify(this.patch),
-            headers: new Headers({
-                'Content-Type': 'application/json'
-            })
-        }).then(response => {
-            this.status = statusEnum.SUCCESS;
-        }).catch(error => {
-            this.status = statusEnum.ERROR;
-        });
+        console.log(!getIn(this.patch, ['_id']));
+        
+        if(!getIn(this.patch, ['_id'])) {
+            fetch('/api/patches', {
+                method: 'POST',
+                body: JSON.stringify({
+                    ...this.patch.toJS(),
+                    userID: getIn(this.profile, ['sub'])
+                }),
+                headers: this.authHeaders()
+            }).then(async response => {
+                this.status = statusEnum.SUCCESS;
+                // set the response (which has the newly created object ID) as the patch
+                this.patch = fromJS(await response.json());
+                // get latest set of patches for this user
+                auth.getProfile(this);
+            }).catch(error => {
+                this.status = statusEnum.ERROR;
+                console.log(error)
+            });
+        } else {
+            console.log(this.patch.toJS());
+            
+            fetch(`/api/patch/${ getIn(this.patch, ['_id']) }`, {
+                method: 'PUT',
+                body: JSON.stringify(this.patch.toJS()),
+                headers: this.authHeaders()
+            }).then(async response => {
+                this.status = statusEnum.SUCCESS;
+                // get latest set of patches for this user
+                auth.getProfile(this);
+            }).catch(error => {
+                this.status = statusEnum.ERROR;
+            });
+        }
+        // console.log(this.profile.toJS());
         window.setTimeout(() => {
             this.status = statusEnum.DEFAULT;
         }, 3000)
+    }
+
+    // get the patches associated with the current user
+    getUserPatches() {
+        const userID = getIn(this.profile, ['sub']);
+        if(!userID) {
+            this.patches = [];
+            return;
+        }
+        fetch(`/api/user/${ userID }`, {
+            headers: this.authHeaders()
+        }).then(async res => {
+            if(res.status >= 400) throw res.statusText;
+            this.patches = fromJS(await res.json())
+        }).catch(e => {
+            console.log('Error', e)
+        });
     }
     
     loadFromDatabase() {
         this.status = statusEnum.LOADING;
         fetch(`/api/patches/${ getIn(this.patch, ['name']) }`)
             .then(async response => {
-                this.patch = await response.json() || this.patch;
+                this.patch = fromJS(await response.json()) || this.patch;
                 this.status = statusEnum.SUCCESS;
         }).catch(error => {
             this.status = statusEnum.ERROR;
@@ -222,6 +273,35 @@ export class LitKeyboard extends LitElement {
                 `) }
             </svg>
         `;
+    }
+
+    user() {
+        return html`
+            <style>
+                #patches {
+                    width: 300px;
+                    max-height: 200px;
+                }
+            </style>
+            <div class="vertical-container">
+            ${  !auth.isAuthenticated()
+                ? html`<button on-click="${ e => auth.login(this) }">Log in</button>`
+                : html`
+                    <p>Logged in as ${ getIn(this.profile, ['name']) }.  <button on-click="${ e => auth.logout(this) }">Log out</button></p>
+                    <div id="patches" class="options">
+                        ${ !this.patches ? '' : this.patches.map(patch => html`<button on-click="${ e => this.patch = patch }">${ getIn(patch, ['name']) }</button>`) }
+                    </div>
+                    <button on-click="${ e => this.patch = this.defaultPatch }">New Patch...</button>
+                    <div>
+                        <h2>Save to database</h2>
+                        <label>Name: <input type="text" value="${ getIn(this.patch, ['name']) }" on-input="${ e => this.patch = setIn(this.patch, ['name'], e.target.value) }"></label>
+                        <button hidden?="${ !getIn(this.patch, ['name']) }" on-click="${ e => this.saveToDatabase() }">Save</button>
+                        <p>${ this.getStatus(this.status) }</p>
+                    </div>
+                `
+            }
+            </div>
+        `
     }
 
     amplitudeEnvelope() {
@@ -287,26 +367,7 @@ export class LitKeyboard extends LitElement {
     render() {
         return html`
             ${ styles }
-            <div>
-            ${ auth.isAuthenticated() ? 
-                html`
-                    Logged in as ${ getIn(this.profile, ['name']) }.  <button on-click="${ e => auth.logout(this) }">Log out</button>
-                    <select>
-                        ${ !this.patches ? '' : this.patches.map(patch => html`<option>${ getIn(patch, ['name']) }</option>`) }
-                    </select>
-                    <p>
-                        <button class$="${ this.saveMode ? '' : 'active' }" on-click="${ e => this.saveMode = false }">Load...</button>
-                        <button class$="${ this.saveMode ? 'active' : '' }" on-click="${ e => this.saveMode = true }">Save...</button>
-                    </p>
-                    <h2>${ this.saveMode ? 'Save to' : 'Load from' } database</h2>
-                    <label>Name: <input type="text" value="${ getIn(this.patch, ['name']) }" on-input="${ e => this.patch = setIn(this.patch, ['name'], e.target.value) }"></label>
-                    <button hidden?="${ !getIn(this.patch, ['name']) }" on-click="${ e => this.saveMode ? this.saveToDatabase() : this.loadFromDatabase() }">${ this.saveMode ? 'Save' : 'Load' }</button>
-                    <p>${ this.getStatus(this.status) }</p>
-                `
-                :
-                html`<button on-click="${ e => auth.login(this) }">Log in</button>`
-            }
-            </div>
+            ${ this.user() }
             ${ this.keyboardOctave() }
             <div class="horizontal-container">
                 ${ this.amplitudeEnvelope() }

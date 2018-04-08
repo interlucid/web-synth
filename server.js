@@ -1,5 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
+const mongoose = require('mongoose');
 const app = express();
 
 app.use(bodyParser.json());
@@ -8,107 +11,97 @@ app.set('json spaces', 2);
 app.use(express.static('public'));
 app.use('/scripts', express.static(__dirname + '/node_modules/'));
 
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+// DATABASE SETUP
 
-// Connection URL
-const mongoURL = 'mongodb://localhost:27017';
+mongoose.connect('mongodb://localhost:27017/webSynth');
+const db = mongoose.connection;
 
-// Database Name
-const dbName = 'webSynth';
-const patchCollection = 'patches';
-let db;
-
-// Use connect method to connect to the server
-MongoClient.connect(mongoURL, (err, client) => {
-  assert.equal(null, err);
-  console.log(`Connected successfully to MongoDB on ${ mongoURL }`);
-
-  db = client.db(dbName);
-//   db.collection(patchCollection).createIndex( { name: "text" } ).catch(e => console.log(e))
-
-//   client.close();
+const patchSchema = mongoose.Schema({
+    name: String,
+    ampEnv: Object,
+    waveType: String,
+    filterFreqLog: Number,
+    userID: String
 });
 
-// let patches = [];
-// let latestPatchId = 0;
+const Patch = mongoose.model('Patch', patchSchema, 'patches');
 
-app.get('/api/patches', (req, res) => {
-     const patches = db.collection(patchCollection)
-        .find({})
-        .toArray((err, docs) => {
-            res.send(docs);
+db.on('error', console.error.bind(console, 'connection error:'));
+
+// AUTHORIZATION MIDDLEWARE
+
+const loginCheck = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: "https://interlucid.auth0.com/.well-known/jwks.json"
+    }),
+    audience: '/api',
+    issuer: "https://interlucid.auth0.com/",
+    algorithms: ['RS256']
+});
+
+// ENDPOINTS
+
+const router = express.Router();
+
+// TODO: add login check to post
+// TODO: prevent any user from posting using another user's ID
+router.route('/patches')
+    .get((req, res) => {
+        Patch.find((e, patches) => {
+            if(e) res.send(e);
+            else res.json(patches);
         })
-        // .catch((e) => {
-        //     console.log('crap');    
-        // })
-    // res.send(patches);
-});
+    })
+    .post((req, res) => {
+        const patch = new Patch(req.body);
+        patch.save(e => {
+            if(e) res.send(e);
+        })
+        res.json(patch);
+    })
 
-// simple search
-app.get('/api/patches/:query', (req, res) => {
-    db.collection(patchCollection)
-        .find( { name: new RegExp(req.params.query, 'g') })
-        .toArray((e, docs) => {
-            res.send(docs.length ? docs[0] : undefined);
+// TODO: add login check for put and delete
+// TODO: prevent any user from putting or deleting another user's patches
+router.route('/patch/:id')
+    .get((req, res) => {
+        Patch.findById(req.params.id, (e, patch) => {
+            if(e) res.send(e);
+            else res.json(patch);
         });
-});
+    })
+    .put((req, res) => {
+        Patch.findByIdAndUpdate(req.params.id, req.body, { new: true }, (e, patch) => {
+            if(e) res.send(e);
+            else res.json(patch);
+        });
+    })
+    .delete((req, res) => {
+        Patch.findByIdAndRemove(req.params.id, (e, patch) => {
+            if(e) res.send(e);
+            else if(patch === null) res.send('Nothing to delete');
+            else res.send(`Successfully deleted patch with ID ${req.params.id}`);
+        })
+    })
 
-app.post('/api/patches', async (req, res) => {
-    const query = { name: req.body.name };
-    const sendResult = async result => {
-        db.collection(patchCollection)
-            .find(query)
-            .toArray((e, docs) => res.send(docs));
-    }
-    // check if patch exists
-    if((await db.collection(patchCollection).find(query).toArray()).length) {
-        // if so, update
-        db.collection(patchCollection)
-            .updateOne(query, { $set: req.body })
-            .then(sendResult)
-            .catch(e => {
-                console.log(`Heh...`, e);
-            })
-    } else {
-        // otherwise, create new patch
-        db.collection(patchCollection)
-            .insertOne(req.body)
-            .then(sendResult)
-            .catch(e => {
-                console.log(`Heh...`, e);
-            })
-    }
-});
+// get info for the current user (currently, just patches)
+router.route('/user/:id')
+    .get((req, res) => {
+        Patch.find({ userID: req.params.id }, (e, patches) => {
+            if(e) res.send(e);
+            else res.json(patches);
+        })
+    })
 
-app.get('/api/patch/:id', (req, res) => {
-    const index = getPatchIndex(req.params.id, res);
-    res.status(200).send(patches[index]);
-});
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+})
 
-app.put('/api/patch/:id', (req, res) => {
-    const index = getPatchIndex(req.params.id, res);
-    patches[index] = req.body;
-    res.status(200).send(patches[index]);
-});
-
-app.delete('/api/patch/:id', (req, res) => {
-    const index = getPatchIndex(req.params.id, res);
-    patches.splice(index, 1);
-    res.send(`Successfully deleted patch ${req.params.id}.`)
-});
-
-const findPatch = (query, res) => {
-    const patch = patches.find(patch => patch.name.includes(query));
-    if(!patch) res.status(404).send(`Found no matching patches`);
-    return patch;
-}
-
-const getPatchIndex = (id, res) => {
-    const index = patches.findIndex(el => el.id == id);
-    if(index === -1) res.status(404).send(`Patch ${id} not found.`);
-    return index;
-}
+// all of our routes will be prefixed with /api
+app.use('/api', router);
 
 const port = 3000;
 

@@ -2,7 +2,7 @@ export const webAuth = new auth0.WebAuth({
     domain: 'interlucid.auth0.com',
     clientID: '4aQ28QeHCkVUYCgIP9kvZAAS0Pb381Gp',
     responseType: 'token id_token',
-    audience: 'https://interlucid.auth0.com/userinfo',
+    audience: '/api',
     scope: 'openid profile',
     redirectUri: window.location.href
 });
@@ -64,14 +64,13 @@ export const getProfile = (template) => {
             return;
         }
     
-        webAuth.client.userInfo(accessToken, (err, profile) => {
-            if(profile) {
+        // only get the profile if authenticated
+        if(isAuthenticated()) {
+            webAuth.client.userInfo(accessToken, (err, profile) => {
                 userProfile = profile;
                 template.updateProfile(userProfile);
-            } else {
-                console.log('Error!', err)
-            }
-        });
+            });
+        }
     } else {
         console.log('displaying profile?', userProfile);
         template.updateProfile(userProfile);
