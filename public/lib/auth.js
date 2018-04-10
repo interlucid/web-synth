@@ -72,7 +72,6 @@ export const getProfile = (template) => {
             });
         }
     } else {
-        console.log('displaying profile?', userProfile);
         template.updateProfile(userProfile);
     }
 }

@@ -168,15 +168,14 @@ export class LitKeyboard extends LitElement {
     // post if no ID, put with ID otherwise
     saveToDatabase() {
         this.status = statusEnum.LOADING;
-        console.log(!getIn(this.patch, ['_id']));
-        
         if(!getIn(this.patch, ['_id'])) {
+            const myObj = 
             fetch('/api/patches', {
                 method: 'POST',
-                body: JSON.stringify({
-                    ...this.patch.toJS(),
+                // use Object.assign until object literal spread is implemented cross-browser
+                body: JSON.stringify(Object.assign({
                     userID: getIn(this.profile, ['sub'])
-                }),
+                }, this.patch.toJS())),
                 headers: this.authHeaders()
             }).then(async response => {
                 this.status = statusEnum.SUCCESS;
@@ -189,8 +188,6 @@ export class LitKeyboard extends LitElement {
                 console.log(error)
             });
         } else {
-            console.log(this.patch.toJS());
-            
             fetch(`/api/patch/${ getIn(this.patch, ['_id']) }`, {
                 method: 'PUT',
                 body: JSON.stringify(this.patch.toJS()),
